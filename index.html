@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hi Phil</title>
+
+    <style>
+        :root {
+            --bg-start: #ffe1ed;
+            --bg-mid: #f9e3ff;
+            --bg-end: #e4edff;
+            --card: rgba(255, 250, 253, 0.82);
+            --text: #633b60;
+            --accent: #ff6fae;
+            --accent-2: #ffa4d0;
+            --accent-dark: #d94e91;
+            --shadow: rgba(220, 91, 157, 0.24);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse at 12% 18%, rgba(255, 255, 255, 0.82), transparent 28%),
+                radial-gradient(ellipse at 88% 78%, rgba(255, 188, 221, 0.48), transparent 30%),
+                linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 45%, var(--bg-end) 100%);
+            color: var(--text);
+            overflow: hidden;
+            position: relative;
+            font-family: "Trebuchet MS", Arial, sans-serif;
+        }
+
+        .page-track {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            width: 300vw;
+            transition: transform 750ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 1;
+        }
+
+        .page-track.show-love {
+            transform: translateX(-100vw);
+        }
+
+        .page-track.show-cutie {
+            transform: translateX(-200vw);
+        }
+
+        .bounce-drag {
+            translate: 0 0;
+            touch-action: none;
+            user-select: none;
+            transition: translate 650ms cubic-bezier(0.34, 1.56, 0.64, 1), scale 180ms ease;
+        }
+
+        .bounce-drag.dragging {
+            transition: none;
+        }
+
+        .bounce-drag.bouncing {
+            animation: bounceBack 700ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes bounceBack {
+            0% {
+                translate: var(--bounce-x) var(--bounce-y);
+            }
+            65% {
+                translate: calc(var(--bounce-x) * -0.14) calc(var(--bounce-y) * -0.14);
+            }
+            82% {
+                translate: calc(var(--bounce-x) * 0.06) calc(var(--bounce-y) * 0.06);
+            }
+            100% {
+                translate: 0 0;
+            }
+        }
+
+        .page {
+            flex: 0 0 100vw;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+        }
+
+        .home-content {
+            display: grid;
+            justify-items: center;
+            gap: 18px;
+        }
+
+        .heart-icon-btn {
+            width: 76px;
+            height: 76px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.86), rgba(255, 228, 242, 0.78));
+            color: var(--accent-dark);
+            font-size: 2.2rem;
+            cursor: pointer;
+            box-shadow: 0 12px 26px rgba(220, 91, 157, 0.2), inset 0 1px 0 white;
+            backdrop-filter: blur(6px);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .heart-icon-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .floating-heart {
+            position: absolute;
+            font-size: clamp(1.2rem, 2vw, 2rem);
+            opacity: 0.56;
+            animation: floatHeart 12s linear infinite;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .floating-heart:nth-child(1) { left: 10%; top: 18%; animation-delay: 0s; }
+        .floating-heart:nth-child(2) { left: 20%; top: 72%; animation-delay: 2s; }
+        .floating-heart:nth-child(3) { left: 58%; top: 12%; animation-delay: 4s; }
+        .floating-heart:nth-child(4) { left: 78%; top: 68%; animation-delay: 1s; }
+        .floating-heart:nth-child(5) { left: 88%; top: 35%; animation-delay: 3s; }
+        .floating-heart:nth-child(6) { left: 42%; top: 82%; animation-delay: 5s; }
+
+        @keyframes floatHeart {
+            0% {
+                transform: translate(var(--repel-x, 0px), calc(var(--repel-y, 0px) + 0px)) scale(0.9) rotate(0deg);
+                opacity: 0.2;
+            }
+            25% {
+                opacity: 0.7;
+            }
+            50% {
+                transform: translate(var(--repel-x, 0px), calc(var(--repel-y, 0px) - 20px)) scale(1.1) rotate(8deg);
+                opacity: 0.85;
+            }
+            100% {
+                transform: translate(var(--repel-x, 0px), calc(var(--repel-y, 0px) - 40px)) scale(0.95) rotate(-8deg);
+                opacity: 0.2;
+            }
+        }
+
+        .card {
+            position: relative;
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: 34px;
+            box-shadow: 0 26px 58px var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+            padding: 46px 56px 34px;
+            text-align: center;
+            backdrop-filter: blur(14px);
+            z-index: 1;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 11px;
+            border-radius: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            pointer-events: none;
+        }
+
+        .card::after {
+            content: "♡";
+            position: absolute;
+            top: 19px;
+            right: 25px;
+            color: var(--accent-2);
+            font-size: 1.5rem;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            color: var(--accent-dark);
+            font-size: clamp(2.5rem, 4vw, 3.6rem);
+            letter-spacing: 0.035em;
+            text-shadow: 0 4px 18px rgba(217, 78, 145, 0.12);
+        }
+
+        p {
+            margin: 0 0 24px;
+            color: var(--text);
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            font-weight: 700;
+        }
+
+        .heart-btn {
+            position: relative;
+            border: none;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #ffacd2, #ff64a6 58%, #f34f9c);
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 14px 26px;
+            cursor: pointer;
+            box-shadow: 0 14px 28px rgba(255, 92, 168, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+
+        .heart-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 18px 30px rgba(255, 92, 168, 0.45);
+            filter: saturate(1.1);
+        }
+
+        .heart-btn:active {
+            transform: scale(0.98);
+        }
+
+        .heart-btn::after {
+            content: "💖";
+            position: absolute;
+            top: -6px;
+            right: 18px;
+            font-size: 1.2rem;
+            opacity: 0.9;
+            transform: rotate(18deg);
+        }
+
+        .mini-btn-wrap {
+            margin-top: 18px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .mini-btn {
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            background: rgba(255, 242, 249, 0.72);
+            color: #78466d;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 8px 14px;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(110, 58, 104, 0.12);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .mini-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .follow-btn {
+            margin-top: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 999px;
+            padding: 9px 15px;
+            background: rgba(255, 244, 250, 0.82);
+            color: #78466d;
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(110, 58, 104, 0.12);
+        }
+
+        .love-page-content {
+            display: grid;
+            justify-items: center;
+            gap: 28px;
+            text-align: center;
+        }
+
+        .love-title {
+            margin: 0;
+            color: var(--accent-dark);
+            font-size: clamp(2.5rem, 7vw, 5rem);
+            letter-spacing: 0.04em;
+            text-align: center;
+            text-shadow: 0 8px 28px rgba(217, 78, 145, 0.18);
+        }
+
+        .photo-page {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+        }
+
+        .ariana-photo {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0.82;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .ariana-photo.dragging {
+            scale: 0.82;
+        }
+
+        .ariana-photo.looping {
+            animation: arianaLoop 3s linear;
+        }
+
+        @keyframes arianaLoop {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+            45% {
+                transform: rotate(200deg) scale(0.72);
+            }
+            100% {
+                transform: rotate(3600deg) scale(1);
+            }
+        }
+
+        .photo-caption {
+            position: absolute;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: grid;
+            justify-items: center;
+            gap: 14px;
+            padding: 18px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 26px;
+            background: rgba(255, 250, 253, 0.82);
+            text-align: center;
+            box-shadow: 0 16px 40px rgba(217, 78, 145, 0.2);
+            backdrop-filter: blur(12px);
+        }
+
+        .photo-caption .love-title {
+            font-size: clamp(1.4rem, 3vw, 2.5rem);
+        }
+
+        .back-btn {
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 999px;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.45);
+            color: var(--text);
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(110, 58, 104, 0.12);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        #heartBurst {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .heart {
+            position: fixed;
+            left: 0;
+            top: 0;
+            font-size: 1.8rem;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.6);
+            user-select: none;
+            pointer-events: none;
+            filter: drop-shadow(0 0 12px rgba(255, 105, 180, 0.8));
+        }
+
+        .heart.animate {
+            animation: heartPop 1.35s ease-out forwards;
+        }
+
+        @keyframes heartPop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.45) rotate(0deg);
+            }
+            14% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.55) rotate(var(--rot));
+            }
+        }
+
+        .secret-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            place-items: center;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(10px);
+            z-index: 30;
+            cursor: pointer;
+        }
+
+        .secret-overlay.visible {
+            display: grid;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .secret-message {
+            position: absolute;
+            inset: 0;
+            font-family: Arial, sans-serif;
+            color: #d33d88;
+            font-size: clamp(1.4rem, 3vw, 3.5rem);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-shadow: 0 10px 30px rgba(211, 61, 136, 0.15);
+            pointer-events: none;
+        }
+
+        .secret-line {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            opacity: 0;
+            animation: burstLine 2.6s ease-in-out forwards;
+            text-shadow: 0 8px 24px rgba(211, 61, 136, 0.18);
+            font-size: inherit;
+            display: block;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes burstLine {
+            0% {
+                opacity: 0;
+                transform: translate(var(--x), var(--y)) scale(0.5);
+            }
+            20% {
+                opacity: 1;
+            }
+            55% {
+                opacity: 1;
+                transform: translate(var(--x), var(--y)) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--x), calc(var(--y) + 130px)) scale(0.9);
+            }
+        }
+    </style>
+</head>
+<body>
+    <span class="floating-heart bounce-drag">💖</span>
+    <span class="floating-heart bounce-drag">💗</span>
+    <span class="floating-heart bounce-drag">💖</span>
+    <span class="floating-heart bounce-drag">💗</span>
+    <span class="floating-heart bounce-drag">💖</span>
+    <span class="floating-heart bounce-drag">💗</span>
+
+    <main class="page-track" id="pageTrack">
+        <section class="page" aria-label="Startseite">
+            <div class="home-content">
+                <button class="heart-icon-btn bounce-drag" id="cutieBtn" type="button" aria-label="Liebesnachricht öffnen">💝</button>
+                <div class="card">
+                    <h1 class="bounce-drag">Hi Phil</h1>
+                    <p class="bounce-drag">Du süßer</p>
+                    <button class="heart-btn bounce-drag" id="heartBtn" type="button">Liebe senden</button>
+
+                    <div class="mini-btn-wrap">
+                        <button class="mini-btn bounce-drag" id="miniBtn" type="button">Klick me</button>
+                    </div>
+                    <button class="follow-btn" id="followBtn" type="button">Alles folgt der Maus</button>
+                </div>
+            </div>
+        </section>
+        <section class="page" aria-label="I love you">
+            <div class="love-page-content">
+                <h1 class="love-title bounce-drag">I love you</h1>
+                <button class="back-btn bounce-drag" id="backBtn" type="button">Zurück</button>
+            </div>
+        </section>
+        <section class="page photo-page" aria-label="Ariana Grande">
+            <img class="ariana-photo bounce-drag" id="arianaPhoto" src="Ariana-Grande.png" alt="Ariana Grande" draggable="false">
+            <div class="photo-caption">
+                <h1 class="love-title bounce-drag">Ich liebe dich so sehr du cutie</h1>
+                <button class="back-btn bounce-drag" id="cutieBackBtn" type="button">Zurück</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="heartBurst" aria-hidden="true"></div>
+
+    <div class="secret-overlay" id="secretOverlay" aria-live="polite" aria-label="Geheimes Geheimnis">
+        <div class="secret-message" aria-label="Felix liebt dich"></div>
+    </div>
+
+    <script>
+        const heartBtn = document.getElementById('heartBtn');
+        const miniBtn = document.getElementById('miniBtn');
+        const cutieBtn = document.getElementById('cutieBtn');
+        const followBtn = document.getElementById('followBtn');
+        const arianaPhoto = document.getElementById('arianaPhoto');
+        const backBtn = document.getElementById('backBtn');
+        const cutieBackBtn = document.getElementById('cutieBackBtn');
+        const pageTrack = document.getElementById('pageTrack');
+        const heartBurst = document.getElementById('heartBurst');
+        const secretOverlay = document.getElementById('secretOverlay');
+        const secretMessage = document.querySelector('.secret-message');
+        const floatingHearts = document.querySelectorAll('.floating-heart');
+
+        function burstHearts(centerX, centerY, count = 24) {
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('span');
+                heart.className = 'heart';
+                heart.textContent = i % 2 === 0 ? '💗' : '💖';
+                heart.style.left = centerX + 'px';
+                heart.style.top = centerY + 'px';
+                heart.style.setProperty('--dx', ((Math.random() - 0.5) * 260) + 'px');
+                heart.style.setProperty('--dy', (-20 - Math.random() * 210) + 'px');
+                heart.style.setProperty('--rot', ((Math.random() - 0.5) * 120) + 'deg');
+                heart.style.fontSize = (16 + Math.random() * 22) + 'px';
+                heartBurst.appendChild(heart);
+
+                requestAnimationFrame(() => heart.classList.add('animate'));
+
+                setTimeout(() => heart.remove(), 1350);
+            }
+        }
+
+        function repelFloatingHearts(pointerX, pointerY) {
+            const radius = 150;
+
+            floatingHearts.forEach((heart) => {
+                const rect = heart.getBoundingClientRect();
+                const heartX = rect.left + rect.width / 2;
+                const heartY = rect.top + rect.height / 2;
+                const deltaX = heartX - pointerX;
+                const deltaY = heartY - pointerY;
+                const distance = Math.hypot(deltaX, deltaY);
+
+                if (distance >= radius) {
+                    heart.style.setProperty('--repel-x', '0px');
+                    heart.style.setProperty('--repel-y', '0px');
+                    return;
+                }
+
+                const strength = (radius - distance) / radius;
+                const direction = distance === 0 ? 1 : 1 / distance;
+                heart.style.setProperty('--repel-x', `${deltaX * direction * strength * 90}px`);
+                heart.style.setProperty('--repel-y', `${deltaY * direction * strength * 90}px`);
+            });
+        }
+
+        window.addEventListener('pointermove', (event) => {
+            repelFloatingHearts(event.clientX, event.clientY);
+        });
+
+        window.addEventListener('pointerleave', () => {
+            floatingHearts.forEach((heart) => {
+                heart.style.setProperty('--repel-x', '0px');
+                heart.style.setProperty('--repel-y', '0px');
+            });
+        });
+
+        function showSecretMessages() {
+            secretMessage.innerHTML = '';
+            secretOverlay.classList.add('visible');
+
+            const heartCenterX = window.innerWidth / 2;
+            const heartCenterY = window.innerHeight / 2;
+
+            for (let i = 0; i < 28; i++) {
+                const heart = document.createElement('span');
+                heart.className = 'heart';
+                heart.textContent = i % 2 === 0 ? '💗' : '💖';
+                heart.style.left = heartCenterX + 'px';
+                heart.style.top = heartCenterY + 'px';
+                heart.style.setProperty('--dx', ((Math.random() - 0.5) * 520) + 'px');
+                heart.style.setProperty('--dy', ((Math.random() - 0.5) * 260) + 'px');
+                heart.style.setProperty('--rot', ((Math.random() - 0.5) * 160) + 'deg');
+                heart.style.fontSize = (18 + Math.random() * 18) + 'px';
+                heartBurst.appendChild(heart);
+                requestAnimationFrame(() => heart.classList.add('animate'));
+                setTimeout(() => heart.remove(), 1400);
+            }
+
+            const lines = [
+                { text: 'Felix liebt dich', x: '0px', y: '-20px', delay: '0s' },
+                { text: 'Felix liebt dich', x: '-170px', y: '40px', delay: '0.15s' },
+                { text: 'Felix liebt dich', x: '170px', y: '70px', delay: '0.3s' },
+                { text: 'Felix liebt dich', x: '-260px', y: '-90px', delay: '0.45s' },
+                { text: 'Felix liebt dich', x: '260px', y: '-120px', delay: '0.6s' },
+                { text: 'Felix liebt dich', x: '0px', y: '140px', delay: '0.75s' },
+                { text: 'Felix liebt dich', x: '-120px', y: '220px', delay: '0.9s' },
+                { text: 'Felix liebt dich', x: '120px', y: '-210px', delay: '1.05s' },
+                { text: 'Felix liebt dich', x: '-290px', y: '160px', delay: '1.2s' },
+                { text: 'Felix liebt dich', x: '290px', y: '150px', delay: '1.35s' }
+            ];
+
+            lines.forEach((line) => {
+                const el = document.createElement('div');
+                el.className = 'secret-line';
+                el.textContent = line.text;
+                el.style.setProperty('--x', line.x);
+                el.style.setProperty('--y', line.y);
+                el.style.animationDelay = line.delay;
+                secretMessage.appendChild(el);
+            });
+
+            setTimeout(() => {
+                secretOverlay.classList.remove('visible');
+            }, 2800);
+        }
+
+        heartBtn.addEventListener('click', () => {
+            const rect = heartBtn.getBoundingClientRect();
+            burstHearts(rect.left + rect.width / 2, rect.top + rect.height / 2, 24);
+        });
+
+        miniBtn.addEventListener('click', () => {
+            const rect = miniBtn.getBoundingClientRect();
+            burstHearts(rect.left + rect.width / 2, rect.top + rect.height / 2, 20);
+            pageTrack.classList.remove('show-cutie');
+            pageTrack.classList.add('show-love');
+        });
+
+        backBtn.addEventListener('click', () => {
+            pageTrack.classList.remove('show-love');
+        });
+
+        cutieBtn.addEventListener('click', () => {
+            pageTrack.classList.remove('show-love');
+            pageTrack.classList.add('show-cutie');
+        });
+
+        cutieBackBtn.addEventListener('click', () => {
+            pageTrack.classList.remove('show-cutie');
+        });
+
+        let arianaClickCount = 0;
+        arianaPhoto.addEventListener('click', () => {
+            arianaClickCount += 1;
+            if (arianaClickCount < 30) return;
+
+            arianaClickCount = 0;
+            arianaPhoto.classList.remove('looping');
+            void arianaPhoto.offsetWidth;
+            arianaPhoto.classList.add('looping');
+        });
+
+        arianaPhoto.addEventListener('animationend', (event) => {
+            if (event.animationName === 'arianaLoop') {
+                arianaPhoto.classList.remove('looping');
+            }
+        });
+
+        let draggedElement = null;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let dragMoved = false;
+        let suppressClickFor = null;
+        let followElements = [];
+        let followStartX = 0;
+        let followStartY = 0;
+        let followTimer = null;
+        let followFrame = null;
+        let followPointerX = 0;
+        let followPointerY = 0;
+        let followStates = [];
+
+        function stopFollowing() {
+            clearTimeout(followTimer);
+            followTimer = null;
+            cancelAnimationFrame(followFrame);
+            followFrame = null;
+            followBtn.textContent = 'Alles folgt der Maus';
+
+            followStates.forEach(({ element }) => {
+                element.classList.remove('dragging');
+                const currentTranslate = getComputedStyle(element).translate;
+                const [offsetX, offsetY] = currentTranslate.split(' ');
+                if (!offsetX || offsetX === 'none' || !offsetY || offsetY === 'none') {
+                    element.style.translate = '0 0';
+                    return;
+                }
+
+                element.style.setProperty('--bounce-x', offsetX);
+                element.style.setProperty('--bounce-y', offsetY);
+                element.style.translate = '0 0';
+                element.classList.add('bouncing');
+                element.addEventListener('animationend', () => {
+                    element.classList.remove('bouncing');
+                    element.style.removeProperty('--bounce-x');
+                    element.style.removeProperty('--bounce-y');
+                }, { once: true });
+            });
+            followElements = [];
+            followStates = [];
+        }
+
+        followBtn.addEventListener('click', (event) => {
+            if (draggedElement) return;
+            if (followTimer) stopFollowing();
+
+            followPointerX = event.clientX;
+            followPointerY = event.clientY;
+            followElements = Array.from(document.querySelectorAll('.bounce-drag')).filter((element) => {
+                return !element.parentElement.closest('.bounce-drag');
+            });
+
+            followStates = followElements.map((element, index) => {
+                element.classList.remove('bouncing');
+                element.style.translate = '0 0';
+                element.classList.add('dragging');
+                const rect = element.getBoundingClientRect();
+                const angle = index * 2.4;
+                const radius = 36 + (index % 4) * 12;
+                return {
+                    element,
+                    startX: rect.left + rect.width / 2,
+                    startY: rect.top + rect.height / 2,
+                    offsetX: Math.cos(angle) * radius,
+                    offsetY: Math.sin(angle) * radius,
+                    x: 0,
+                    y: 0
+                };
+            });
+
+            followBtn.textContent = 'Folge der Maus ...';
+            function chasePointer() {
+                if (!followTimer) return;
+                followStates.forEach((state) => {
+                    const targetX = followPointerX - state.startX + state.offsetX;
+                    const targetY = followPointerY - state.startY + state.offsetY;
+                    state.x += (targetX - state.x) * 0.12;
+                    state.y += (targetY - state.y) * 0.12;
+                    state.element.style.translate = `${state.x}px ${state.y}px`;
+                });
+                followFrame = requestAnimationFrame(chasePointer);
+            }
+            followFrame = requestAnimationFrame(chasePointer);
+            followTimer = setTimeout(stopFollowing, 5000);
+        });
+
+        window.addEventListener('pointermove', (event) => {
+            if (!followTimer) return;
+            followPointerX = event.clientX;
+            followPointerY = event.clientY;
+        });
+
+        pageTrack.addEventListener('pointerdown', (event) => {
+            if (!event.isPrimary) return;
+            if (!(event.target instanceof Element)) return;
+            if (event.target.closest('#followBtn')) return;
+            draggedElement = event.target.closest('.bounce-drag');
+            if (!draggedElement || !pageTrack.contains(draggedElement)) return;
+            event.preventDefault();
+            dragStartX = event.clientX;
+            dragStartY = event.clientY;
+            dragMoved = false;
+            draggedElement.classList.remove('bouncing');
+            draggedElement.classList.add('dragging');
+            draggedElement.setPointerCapture(event.pointerId);
+        });
+
+        pageTrack.addEventListener('pointermove', (event) => {
+            if (!draggedElement) return;
+            const limitX = window.innerWidth * 0.8;
+            const limitY = window.innerHeight * 0.8;
+            const offsetX = Math.max(-limitX, Math.min(limitX, event.clientX - dragStartX));
+            const offsetY = Math.max(-limitY, Math.min(limitY, event.clientY - dragStartY));
+            if (Math.abs(offsetX) + Math.abs(offsetY) > 5) dragMoved = true;
+            draggedElement.style.translate = `${offsetX}px ${offsetY}px`;
+        });
+
+        function releaseDraggable(event) {
+            if (!draggedElement) return;
+            const releasedElement = draggedElement;
+            suppressClickFor = event.type === 'pointerup' && dragMoved ? releasedElement : null;
+            releasedElement.classList.remove('dragging');
+            if (dragMoved && event.type === 'pointerup') {
+                const currentTranslate = getComputedStyle(releasedElement).translate;
+                const [offsetX, offsetY] = currentTranslate.split(' ');
+                releasedElement.style.setProperty('--bounce-x', offsetX);
+                releasedElement.style.setProperty('--bounce-y', offsetY);
+                releasedElement.style.translate = '0 0';
+                releasedElement.classList.add('bouncing');
+                releasedElement.addEventListener('animationend', () => {
+                    releasedElement.classList.remove('bouncing');
+                    releasedElement.style.removeProperty('--bounce-x');
+                    releasedElement.style.removeProperty('--bounce-y');
+                }, { once: true });
+            } else {
+                releasedElement.style.translate = '0 0';
+            }
+            draggedElement = null;
+        }
+
+        pageTrack.addEventListener('pointerup', releaseDraggable);
+        pageTrack.addEventListener('pointercancel', releaseDraggable);
+        pageTrack.addEventListener('click', (event) => {
+            if (!suppressClickFor || !(event.target instanceof Node)) return;
+            if (suppressClickFor === event.target || suppressClickFor.contains(event.target)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+            suppressClickFor = null;
+        }, true);
+
+        secretOverlay.addEventListener('click', () => {
+            secretOverlay.classList.remove('visible');
+        });
+    </script>
+</body>
+</html>
